@@ -1,0 +1,30 @@
+{
+  "delay": 0,
+  "executable": true,
+  "id": "5cfa626a37df1044d2c0064f",
+  "iterations": 20,
+  "requests": [
+    [
+      {
+        "id": "e739b640-7885-51a9-8046-e68578ab6640",
+        "method": "GET",
+        "path": "/ask",
+        "requestHeader": {
+          "X-Ditas-Operationid": [
+            ""
+          ],
+          "X-Ditas-Requestid": [
+            "e739b640-7885-51a9-8046-e68578ab6640"
+          ],
+          "X-Ditas-Sample": [
+            "1"
+          ]
+        }
+      }
+    ]
+  ],
+  "strategy": "sequential",
+  "threads": 1,
+  "token": "some.id.token",
+  "warmup": 10
+}

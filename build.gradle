@@ -1,0 +1,74 @@
+def containerName = "ditas/benchmakring-agent"
+buildscript {
+    ext.kotlin_version = '1.3.40'// Required for Kotlin integration
+
+    repositories {
+        jcenter()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:4.10.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Required for Kotlin integration
+    }
+}
+
+apply plugin: "kotlin" // Required for Kotlin integration
+apply plugin: "application"
+apply plugin: "com.bmuschko.docker-java-application"
+
+
+docker {
+    javaApplication {
+        baseImage = 'openjdk:11-slim'
+        tag = containerName
+    }
+    dockerPushImage {
+        imageName = containerName
+    }
+}
+
+
+
+
+mainClassName = 'eu.ditas.ba.MainKt'
+
+sourceSets {
+    main.kotlin.srcDirs += 'src/kotlin'
+    main.resources.srcDirs = [ 'src/resources' ]
+    test.kotlin.srcDirs += 'test/kotlin'
+    test.resources.srcDirs += 'test/resources'
+}
+
+jar {
+    version = '0.1.0'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    //kotlin runtime
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // Required for Kotlin integration
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.2"
+    //kotlin integration
+    compile 'io.github.microutils:kotlin-logging:1.6.26'
+    //config under resources/logback.xml
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    //cli interface
+    compile 'com.github.ajalt:clikt:2.0.0'
+    //json (de)serializer
+    compile 'com.google.code.gson:gson:2.8.5'
+    //http client
+    compile 'com.github.kittinunf.fuel:fuel:2.1.0'
+    compile 'com.github.kittinunf.fuel:fuel-gson:2.1.0'
+    compile 'com.github.kittinunf.fuel:fuel-coroutines:2.1.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testCompile 'org.mock-server:mockserver-netty:5.3.0'
+}
+
+test {
+    useJUnitPlatform()
+}
