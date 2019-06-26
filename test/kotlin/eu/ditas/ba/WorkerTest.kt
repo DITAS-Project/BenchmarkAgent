@@ -1,8 +1,6 @@
 package eu.ditas.ba
 
 import com.github.kittinunf.fuel.core.Method
-import kotlinx.coroutines.delay
-import org.junit.Before
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.mockserver.client.server.MockServerClient
@@ -10,7 +8,6 @@ import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import java.lang.Thread.sleep
-import java.nio.file.Files
 import kotlin.random.Random
 
 
@@ -66,16 +63,9 @@ internal class WorkerTest : HttpTestBase() {
         val result = worker.cleanup()
 
         val expectedResponses = numRequests*payload.iterations*payload.threads
-
         //the responseCounter is higher due to warmups (the number is not static as warmup happens for a fixed period not a fixed number of requests)
-
         Assertions.assertTrue(expectedResponses <= responseCounter)
-        val results = result.rawResults.fold(initial = listOf(), operation = fun(acc: List<Worker.WorkloadResult>, list: List<Worker.WorkloadResult>): List<Worker.WorkloadResult> {
-            return acc + list
-        })
-        Assertions.assertTrue(results.size <= responseCounter)
-
-
+        Assertions.assertTrue(result.responses.size <= responseCounter)
     }
 }
 fun getResourceAsText(path: String): String {
@@ -106,7 +96,7 @@ internal class PayloadTest :HttpTestBase(){
 
         mockServer
                 .`when`(HttpRequest.request("/unexpected").withMethod("GET"))
-                .respond(HttpResponse.response().withStatusCode(204))
+                .respond(HttpResponse.response().withHeader("Content-Type","application/json").withBody(validPayloadString).withStatusCode(204))
 
         try {
             val payload = Payload.newInstanceFrom("$url/validpayload")

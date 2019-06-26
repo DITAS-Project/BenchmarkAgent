@@ -4,13 +4,18 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.coroutines.awaitByteArrayResponseResult
-import com.github.kittinunf.fuel.coroutines.awaitObjectResponse
 import com.github.kittinunf.fuel.coroutines.awaitStringResult
 import kotlinx.coroutines.*
 import mu.KotlinLogging
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.ConcurrentLinkedQueue
 import com.github.kittinunf.result.Result
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
@@ -19,14 +24,11 @@ class Worker(private val payload: Payload) {
     private val workers: MutableList<WorkerThread> = mutableListOf()
     private var experimentStart: Long = 0;
 
-    data class WorkloadResult(val id: String, val rid: String, val time: Long, val code: Int, val data: String?, val error: Boolean)
-
     class WorkerThread(val id:Int,private val requests: List<Requests>) {
 
         val results: ConcurrentLinkedQueue<WorkloadResult> = ConcurrentLinkedQueue()
 
         suspend fun warmup(warmup: Int) {
-
                 withTimeoutOrNull(warmup.toLong()) {
                     requests.forEach {
                         val (body, fuelError) = Fuel.request(it.method, it.path)
@@ -48,14 +50,14 @@ class Worker(private val payload: Payload) {
                         .useHttpCache(false)
 
                 val (_, response, result) = request.awaitByteArrayResponseResult()
-                processReply(it, launchTime, response, result)
+                processReply(it,itter, launchTime, response, result)
 
             }
         }
 
-        private  fun processReply(request:Requests, launchTime:Long, response:Response,result:Result<ByteArray,FuelError>){
-            val time = currentTimeMillis() - launchTime
-            val code = response.statusCode
+        private  fun processReply(request:Requests,itter: Int, launchTime:Long, response:Response,result:Result<ByteArray,FuelError>){
+            val latancy = currentTimeMillis() - launchTime
+            val statusCode = response.statusCode
             val (data, error) = result
 
             var body: String = ""
@@ -63,7 +65,7 @@ class Worker(private val payload: Payload) {
                 body = String(data)
             }
 
-            results.add(WorkloadResult(request.id, request.rid, time, code, body, (error != null)))
+            results.add(WorkloadResult(request.id,id,itter,latancy,statusCode,body,response.headers,error != null))
         }
 
         override fun toString(): String {
@@ -130,16 +132,32 @@ class Worker(private val payload: Payload) {
         //start threads
     }
 
-    data class BenchmarkResult(val totalTime:Long, val rawResults:List<List<WorkloadResult>>)
 
-    fun cleanup() : BenchmarkResult{
+
+    @ExperimentalStdlibApi
+    fun cleanup() : BenchmarkResults{
         val totalExperimentTime = currentTimeMillis() - experimentStart
         logger.info { "totalTime : $totalExperimentTime" }
 
-        val result = BenchmarkResult(totalTime = totalExperimentTime, rawResults = workers.map { it.results.toList() })
-        logger.info { "results: $result" }
+        val results = BenchmarkResults(
+                runnerID = UUID.randomUUID().toString(),
+                metadata = payload,
+                payloadId = payload.id,
+                totalRuntime = totalExperimentTime,
+                vdcId = "",//TODO: how to get this?
+                responses = workers.map { it.results.toList() }.flatten()
+        );
 
-        return result
+        logger.info { "results: $results" }
+
+        try {
+            Files.write(Paths.get("/tmp/${results.runnerID}.json"), Gson().toJson(results).encodeToByteArray());
+            logger.info { "wrtitten results to /tmp/${results.runnerID}.json" }
+        } catch (e:IOException) {
+            logger.error("failed to write backup",e)
+        }
+
+        return results
     }
 
     override fun toString(): String {

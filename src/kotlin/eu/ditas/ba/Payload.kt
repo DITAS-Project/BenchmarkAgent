@@ -22,15 +22,15 @@ private val logger = KotlinLogging.logger {}
 
 data class Payload (
 
-		@SerializedName("delay") val delay : Int,
+		@SerializedName("delay") val delay : Int, //in milliseconds
 		@SerializedName("executable") val executable : Boolean,
 		@SerializedName("id") val id : String,
 		@SerializedName("iterations") val iterations : Int,
 		@SerializedName("requests") val requests : List<List<Requests>>,
 		@SerializedName("strategy") val strategy : String,
 		@SerializedName("threads") val threads : Int,
-		@SerializedName("token") val token : String,
-		@SerializedName("warmup") val warmup : Int
+		@SerializedName("token") val token : String, //refresh token
+		@SerializedName("warmup") val warmup : Int //in milliseconds
 ){
 	companion object {
 		fun newInstanceFrom(path:String):Payload? {
