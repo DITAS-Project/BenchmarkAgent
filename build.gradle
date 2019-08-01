@@ -1,4 +1,4 @@
-def containerName = "ditas/benchmakring-agent"
+def containerName = "ditas/benchmarking-agent"
 buildscript {
     ext.kotlin_version = '1.3.40'// Required for Kotlin integration
 
