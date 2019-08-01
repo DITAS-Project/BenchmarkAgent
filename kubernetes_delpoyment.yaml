@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: benchmark
+  annotations:
+  labels:
+  name: agent
+spec:
+  ports:
+    - name: http
+      port: 8082
+      targetPort: 8082
+  selector:
+    app: agent
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: benchmark
+  annotaions:
+  labels:
+    app: name
+  name: agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent
+  template:
+    metadata:
+      labels:
+        app: agent
+    spec:
+      containers:
+        - image: durgen/benchmarking-agent:0.0.1
+          name: agent
+          ports:
+            - containerPort: 8082
+          imagePullPolicy: Always
+          args:
+           - "-p"
+           - "https://scheduler.ditasbench.k8s.ise-apps.de/v1/benchmark/5d42df1fd7c9300001cc0151-kube_vdc"
+      restartPolicy: Always
