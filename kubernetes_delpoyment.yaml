@@ -12,8 +12,6 @@ spec:
       containers:
         - image: durgen/benchmarking-agent:0.0.1
           name: agent
-          ports:
-            - containerPort: 8082
           imagePullPolicy: Always
           args:
            - "-p"
