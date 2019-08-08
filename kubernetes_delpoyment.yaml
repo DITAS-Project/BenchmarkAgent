@@ -1,0 +1,19 @@
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: benchmark
+  annotaions:
+  name: agent
+spec:
+  template:
+    spec:
+      containers:
+        - image: durgen/benchmarking-agent:0.0.1
+          name: agent
+          imagePullPolicy: Always
+          args:
+           - "-p"
+           - "https://scheduler.ditasbench.k8s.ise-apps.de/v1/benchmark/5d42df1fd7c9300001cc0151-kube_vdc"
+      restartPolicy: Never
