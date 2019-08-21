@@ -2,30 +2,23 @@ package eu.ditas.ba
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.coroutines.awaitByteArrayResponseResult
 import com.github.kittinunf.fuel.coroutines.awaitStringResult
-import com.github.kittinunf.fuel.gson.gsonDeserializer
 import com.github.kittinunf.fuel.gson.gsonDeserializerOf
 import com.github.kittinunf.fuel.httpPost
-import kotlinx.coroutines.*
-import mu.KotlinLogging
-import java.lang.System.currentTimeMillis
-import java.util.concurrent.ConcurrentLinkedQueue
 import com.github.kittinunf.result.Result
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import io.jsonwebtoken.Jwts
+import kotlinx.coroutines.*
+import mu.KotlinLogging
 import java.io.IOException
+import java.lang.System.currentTimeMillis
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import java.util.ArrayList
-import io.jsonwebtoken.Jwt
-
-
+import java.util.concurrent.ConcurrentLinkedQueue
 
 
 private val logger = KotlinLogging.logger {}
