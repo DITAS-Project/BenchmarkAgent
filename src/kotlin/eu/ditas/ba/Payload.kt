@@ -30,7 +30,8 @@ data class Payload (
 		@SerializedName("strategy") val strategy : String,
 		@SerializedName("threads") val threads : Int,
 		@SerializedName("token") val token : String, //refresh token
-		@SerializedName("warmup") val warmup : Int //in milliseconds
+		@SerializedName("warmup") val warmup : Int, //in milliseconds
+		@SerializedName("strict")val strict : Boolean = false
 ){
 	companion object {
 		fun newInstanceFrom(path:String):Payload? {

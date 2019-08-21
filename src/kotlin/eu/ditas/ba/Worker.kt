@@ -79,14 +79,17 @@ class Worker(private val payload: Payload) {
 
     private fun getValidAccessToken(): String {
 
+        //check if refresh token is present
+        if (payload.token == null || payload.token == "") throw FailedTokenParsing("no token present", Exception(""));
+
         // delete signature since we don't need it but the library will not parse w/o key when token is singed
         val i = payload.token.lastIndexOf('.')
-        val withoutSignature = payload.token.substring(0, i+1);
+        val withoutSignature = payload.token.substring(0, i + 1);
 
         //parse token
-        val jwtBody= Jwts.parser().parseClaimsJwt(withoutSignature).body
+        val jwtBody = Jwts.parser().parseClaimsJwt(withoutSignature).body
         val realmURL = jwtBody.get("iss").toString() + "/protocol/openid-connect"
-        val tokenURL="$realmURL/token"
+        val tokenURL = "$realmURL/token"
         val clientId = jwtBody.get("azp").toString()
 
         // get the access token on the token endpoint
@@ -97,10 +100,10 @@ class Worker(private val payload: Payload) {
 
         // check if access token is present
         if (error != null) {
-            logger.error { "unable to get access token due to ${error.message}" }
+            throw FailedTokenParsing("unable to get access token due to ${error.message}", error.exception)
         } else {
             if (body == null) {
-                logger.error { "unable to get access token due to empty response body" }
+                throw FailedTokenParsing("unable to get access token due to empty response body", Exception(""))
             } else {
                 ret = body.get("access_token").asString
             }
@@ -112,7 +115,14 @@ class Worker(private val payload: Payload) {
 
     fun prepare() {
         //refresh token
-        val accessToken = this.getValidAccessToken()
+        var accessToken = ""
+        try {
+            accessToken = this.getValidAccessToken()
+        } catch (e: Exception) {
+            logger.error { "token refresh failed due to ${e.message}" }
+            if (payload.strict) throw e
+
+        }
 
         for (requests in payload.requests) {
             //injecting access token and header decoration
