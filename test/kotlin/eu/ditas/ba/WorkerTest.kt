@@ -41,6 +41,7 @@ internal class WorkerTest : HttpTestBase() {
         return 1.rangeTo(num).map { makeDummyRequest("$it",url) }
     }
 
+    @ExperimentalStdlibApi
     @Test
     fun testBench() {
         var responseCounter = 0;
