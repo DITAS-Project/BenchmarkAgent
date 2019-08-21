@@ -10,7 +10,7 @@ spec:
   template:
     spec:
       containers:
-        - image: durgen/benchmarking-agent:0.0.1
+        - image: durgen/benchmarking-agent:latest
           name: agent
           imagePullPolicy: Always
           args:

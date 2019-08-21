@@ -63,6 +63,10 @@ dependencies {
     compile 'com.github.kittinunf.fuel:fuel:2.1.0'
     compile 'com.github.kittinunf.fuel:fuel-gson:2.1.0'
     compile 'com.github.kittinunf.fuel:fuel-coroutines:2.1.0'
+    //access token parsing
+    compile 'io.jsonwebtoken:jjwt-api:0.10.7'
+    runtime 'io.jsonwebtoken:jjwt-impl:0.10.7',
+            'io.jsonwebtoken:jjwt-jackson:0.10.7'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
